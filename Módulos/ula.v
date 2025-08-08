@@ -1,4 +1,4 @@
-module ula (
+module ULA (
     input  [31:0] in1, in2, 
     input  [3:0]  ula_control,
     output reg [31:0] ula_result,

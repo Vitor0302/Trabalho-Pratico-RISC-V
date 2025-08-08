@@ -1,70 +1,80 @@
 /*
- Módulo da Unidade de Controle da ULA.
- Recebe o sinal ALUOp da Controle Principal e os functs da instrução.
- Gera o sinal final de 4 bits que comanda a ULA.
+ =================================================================
+ Módulo da Unidade de Controle Principal ("CEO")
+ =================================================================
 */
-module Unidade_Controle_ULA (
-    input  [1:0]  ALUOp,    // Vindo da Controle Principal
-    input  [6:0]  funct7,
-    input  [2:0]  funct3,
-    output reg [3:0]  alu_control_out // Saída final para a ULA
+module Unidade_Controle_Principal (
+    input  [6:0] opcode,
+    output reg    RegWrite,
+    output reg    ALUSrc,
+    output reg    MemToReg,
+    output reg    MemRead,
+    output reg    MemWrite,
+    output reg    Branch,
+    output reg [1:0] ALUOp
 );
 
-    // Códigos das operações da nossa ULA (para referência)
-    localparam ALU_AND = 4'b0000;
-    localparam ALU_OR  = 4'b0001;
-    localparam ALU_ADD = 4'b0010;
-    localparam ALU_SUB = 4'b0100;
-    localparam ALU_SRL = 4'b0101;
-
     always @(*) begin
-        // A lógica principal é um 'case' no ALUOp
-        case (ALUOp)
+        // Valores padrão seguros
+        RegWrite = 1'b0; ALUSrc = 1'b0; MemToReg = 1'b0; MemRead  = 1'b0;
+        MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'bxx;
 
-            // Caso 1: A Controle Principal já sabe que é uma SOMA (para lh, sh)
-            2'b00: begin
-                alu_control_out = ALU_ADD;
+        case (opcode)
+            // Tipo-R (sub, or, srl)
+            7'b0110011: begin
+                RegWrite = 1'b1; ALUOp = 2'b10; // ALUOp '10' = Usar Functs
             end
-
-            // Caso 2: A Controle Principal sabe que é uma SUBTRAÇÃO (para beq)
-            2'b01: begin
-                alu_control_out = ALU_SUB;
+            // Tipo-I Load (lh)
+            7'b0000011: begin
+                RegWrite = 1'b1; ALUSrc = 1'b1; MemToReg = 1'b1; MemRead = 1'b1; ALUOp = 2'b00; // ALUOp '00' = SOMA
             end
-
-            // Caso 3: É uma instrução do Tipo-R. Precisamos olhar os functs.
-            // Aqui entra o seu código original!
-            2'b10: begin
-                case (funct3)
-                    3'b000: begin // ADD ou SUB
-                        if (funct7 == 7'b0100000)
-                            alu_control_out = ALU_SUB; // sub
-                        else
-                            alu_control_out = ALU_ADD; // add (não está na sua lista, mas é bom ter)
-                    end
-                    3'b110: begin // OR
-                        alu_control_out = ALU_OR;
-                    end
-                    3'b101: begin // SRL
-                        // Precisamos garantir que é o SRL (funct7=0) e não o SRA
-                        if (funct7 == 7'b0000000)
-                           alu_control_out = ALU_SRL;
-                        else
-                           alu_control_out = 4'hX; // Indefinido
-                    end
-                    // Adicionar outros casos de funct3 do seu conjunto aqui se necessário...
-                    default: alu_control_out = 4'hX; // Operação Tipo-R desconhecida
-                endcase
+            // Tipo-I Imediato (andi)
+            7'b0010011: begin
+                RegWrite = 1'b1; ALUSrc = 1'b1; ALUOp = 2'b11; // ALUOp '11' = AND
             end
-
-            // Adicionar outros casos para ALUOp aqui (ex: para o ANDI)
-            // Por exemplo, podemos definir ALUOp = 11 para AND
-            2'b11: begin
-                alu_control_out = ALU_AND; // Para o andi
+            // Tipo-S Store (sh)
+            7'b0100011: begin
+                ALUSrc = 1'b1; MemWrite = 1'b1; ALUOp = 2'b00; // ALUOp '00' = SOMA
             end
-
-            default: alu_control_out = 4'hX; // ALUOp desconhecido
-
+            // Tipo-B Branch (beq)
+            7'b1100011: begin
+                Branch = 1'b1; ALUOp = 2'b01; // ALUOp '01' = SUB
+            end
         endcase
     end
+endmodule
 
+
+/*
+ =================================================================
+ Módulo da Unidade de Controle da ULA ("Gerente Especialista")
+ =================================================================
+*/
+module Unidade_Controle_ULA (
+    input  [1:0]  ALUOp,
+    input  [6:0]  funct7,
+    input  [2:0]  funct3,
+    output reg [3:0]  alu_control_out
+);
+    localparam ALU_AND = 4'b0000, ALU_OR  = 4'b0001, ALU_ADD = 4'b0010, ALU_SUB = 4'b0100, ALU_SRL = 4'b0101;
+
+    always @(*) begin
+        case (ALUOp)
+            2'b00: alu_control_out = ALU_ADD; // Comando direto para SOMA
+            2'b01: alu_control_out = ALU_SUB; // Comando direto para SUB
+            2'b11: alu_control_out = ALU_AND; // Comando direto para AND
+            2'b10: begin // Comando para decodificar Tipo-R
+                case (funct3)
+                    3'b000: begin // ADD ou SUB
+                        if (funct7 == 7'b0100000) alu_control_out = ALU_SUB; // sub
+                        else alu_control_out = ALU_ADD; // add
+                    end
+                    3'b110: alu_control_out = ALU_OR;   // or
+                    3'b101: alu_control_out = ALU_SRL;  // srl
+                    default: alu_control_out = 4'hX;
+                endcase
+            end
+            default: alu_control_out = 4'hX;
+        endcase
+    end
 endmodule

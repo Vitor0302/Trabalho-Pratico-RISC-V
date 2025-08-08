@@ -1,6 +1,7 @@
 /*
  Módulo Top-Level do Processador RISC-V Monociclo.
  Grupo 12: lh, sh, sub, or, andi, srl, beq
+ CORRIGIDO E REVISADO
 */
 module processador(
     input clock,
@@ -8,7 +9,7 @@ module processador(
 );
 
     // =================================================================
-    // --- 1. FIOS (WIRES) PARA CONECTAR OS COMPONENTES ---
+    // --- 1. FIOS (WIRES) E REGISTRADORES (REGS) ---
     // =================================================================
     
     // -- Sinais de Controle
@@ -17,7 +18,11 @@ module processador(
     wire [3:0]  w_Final_ALU_Control;
 
     // -- Barramentos de Dados
-    wire [31:0] w_pc_current, w_pc_next, w_pc_plus_4, w_pc_branch_target;
+    // ****** CORREÇÃO 1: w_pc_current agora é um REGISTRADOR ******
+    reg  [31:0] w_pc_current;
+    wire [31:0] w_pc_next, w_pc_plus_4, w_pc_branch_target;
+    // ***************************************************************
+    
     wire [31:0] w_instruction;
     wire [31:0] w_read_data_1, w_read_data_2;
     wire [31:0] w_immediate_extended;
@@ -76,7 +81,6 @@ module processador(
     );
 
     // Unidade de Extensão de Sinal
-    // Lida com os diferentes formatos de imediato
     assign w_immediate_extended = (opcode == 7'b0100011) ? {{20{w_instruction[31]}}, w_instruction[31:25], w_instruction[11:7]} : // Tipo-S (sh)
                                  (opcode == 7'b1100011) ? {{20{w_instruction[31]}}, w_instruction[7], w_instruction[30:25], w_instruction[11:8], 1'b0} : // Tipo-B (beq)
                                  {{20{w_instruction[31]}}, w_instruction[31:20]}; // Tipo-I (lh, andi)
@@ -86,14 +90,15 @@ module processador(
     // MUX para a segunda entrada da ULA
     assign w_alu_input_2 = w_ALUSrc ? w_immediate_extended : w_read_data_2;
 
-    // Instância da ULA
+    // ****** CORREÇÃO 2: Nomes das portas da ULA corrigidos ******
     ULA u_alu (
         .in1(w_read_data_1),
         .in2(w_alu_input_2),
-        .alu_control(w_Final_ALU_Control),
-        .alu_result(w_alu_result),
+        .ula_control(w_Final_ALU_Control),
+        .ula_result(w_alu_result),
         .zero_flag(w_alu_zero_flag)
     );
+    // **********************************************************
     
     // --- Estágio MEM: Acesso à Memória ---
 
@@ -111,7 +116,6 @@ module processador(
 
     // MUX final que escolhe o dado a ser escrito no registrador
     assign w_write_data_to_regfile = w_MemToReg ? w_mem_read_data : w_alu_result;
-
 
     // =================================================================
     // --- 3. UNIDADE DE CONTROLE (INSTÂNCIAS) ---
