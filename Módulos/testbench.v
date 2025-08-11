@@ -1,57 +1,79 @@
 /*
- Testbench para o Processador RISC-V Monociclo do Grupo 12.
+ Testbench completo para o Processador RISC-V Monociclo do Grupo 12.
+ Monitora todos os 32 registradores e posições relevantes da memória.
 */
 `timescale 1ns/1ps
 
 module testbench;
 
-    // Sinais que o testbench vai gerar para o processador
+    // Sinais de controle
     reg clock;
     reg reset;
 
-    // --- Instância do nosso Processador (Device Under Test - DUT) ---
-    // Note que o testbench não tem portas de entrada ou saída.
+    // Instância do processador
     processador DUT (
         .clock(clock),
         .reset(reset)
     );
 
-    // --- Geração do Clock ---
-    // Este bloco 'initial' define o comportamento do clock.
+    // Geração do clock (período de 20ns)
     initial begin
-        clock = 0; // Começa em 0
-        forever #10 clock = ~clock; // A cada 10 unidades de tempo, o clock inverte.
-                                      // Isso nos dá um período de 20ns.
+        clock = 0;
+        forever #10 clock = ~clock;
     end
 
-    // --- Controle da Simulação e Monitoramento ---
+    // Controle da simulação
     initial begin
-        // Configuração para gerar o arquivo de forma de onda (VCD)
-        // que pode ser aberto em programas como o GTKWave.
-        $dumpfile("dump.vcd");
-        $dumpvars(0, DUT);
+        // Configuração do arquivo de onda
+        $dumpfile("waveform.vcd");
+        $dumpvars(0, testbench);
 
-        // 1. Aplica o pulso de reset no início
+        // 1. Inicialização com reset
         reset = 1;
-        #15; // Mantém o reset ativo por 15ns
-        reset = 0;
+        #15 reset = 0;
+        
+        // 2. Mensagem inicial
+        $display("\nIniciando simulacao do processador RISC-V - Grupo 12");
+        $display("Instrucoes suportadas: lh, sh, sub, or, andi, srl, beq\n");
 
-        // 2. Monitora os sinais que nos interessam a cada ciclo de clock
-        // Vamos "espionar" o PC e os registradores que nosso programa usa.
-        $monitor("Time=%0t | PC=0x%h | x10=%d | x11=%d | x12=%d | x13=%d | x14=%d | x15=%d",
+        // 3. Monitoramento durante a execução
+        $monitor("Time=%0t ns | PC=0x%h | Instr=0x%h", 
                  $time, 
                  DUT.w_pc_current, 
-                 DUT.u_regfile.reg_memory[10],
-                 DUT.u_regfile.reg_memory[11],
-                 DUT.u_regfile.reg_memory[12],
-                 DUT.u_regfile.reg_memory[13],
-                 DUT.u_regfile.reg_memory[14],
-                 DUT.u_regfile.reg_memory[15]
-        );
+                 DUT.w_instruction);
 
-        // 3. Roda a simulação por um tempo e depois termina
-        #300; // Deixa a simulação rodar por 300ns
-        $finish; // Encerra a simulação
+        // 4. Finalização e relatório
+        #300; // Executa por 300ns
+        print_final_state();
+        $finish;
     end
+
+    // Tarefa para imprimir o estado final
+    task print_final_state;
+        begin
+            $display("\n================ ESTADO FINAL ================");
+            
+            // Registradores
+            $display("\n--- Registradores ---");
+            for (integer i = 0; i < 32; i = i+4) begin
+                $display("x%02d: 0x%h \t x%02d: 0x%h \t x%02d: 0x%h \t x%02d: 0x%h", 
+                         i, DUT.u_regfile.reg_memory[i],
+                         i+1, DUT.u_regfile.reg_memory[i+1],
+                         i+2, DUT.u_regfile.reg_memory[i+2],
+                         i+3, DUT.u_regfile.reg_memory[i+3]);
+            end
+
+            // Memória de dados (primeiras 10 palavras)
+            $display("\n--- Memoria de Dados (enderecos 0-36) ---");
+            for (integer j = 0; j < 10; j++) begin
+                $display("Mem[%0d]: 0x%h", j*4, DUT.u_dmem.data_memory[j]);
+            end
+
+            // Estado especial
+            $display("\n--- Flags ---");
+            $display("Zero Flag: %b", DUT.u_alu.zero_flag);
+            $display("==========================================\n");
+        end
+    endtask
 
 endmodule

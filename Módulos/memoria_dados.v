@@ -19,7 +19,7 @@ module Memoria_Dados (
     // Lógica de Leitura: Combinacional.
     // Se MemRead estiver ativo, a saída recebe o valor da posição de memória.
     // Senão, a saída fica indefinida (alta impedância).
-    assign read_data = MemRead ? data_memory[address[11:2]] : 32'hzzzzzzzz;
+    assign read_data = data_memory[address[11:2]];
 
 
     // Lógica de Escrita: Síncrona.

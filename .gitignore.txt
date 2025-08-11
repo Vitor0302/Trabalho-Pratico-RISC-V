@@ -1,0 +1,5 @@
+# Arquivos compilados do Icarus Verilog
+*.out
+
+# Arquivos de forma de onda da simulação
+*.vcd

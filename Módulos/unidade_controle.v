@@ -1,6 +1,6 @@
 /*
  =================================================================
- Módulo da Unidade de Controle Principal ("CEO")
+ Módulo da Unidade de Controle Principal ("CEO") - VERSÃO CORRETA
  =================================================================
 */
 module Unidade_Controle_Principal (
@@ -15,30 +15,35 @@ module Unidade_Controle_Principal (
 );
 
     always @(*) begin
-        // Valores padrão seguros
+        // Valores padrão seguros para evitar comportamento inesperado
         RegWrite = 1'b0; ALUSrc = 1'b0; MemToReg = 1'b0; MemRead  = 1'b0;
-        MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'bxx;
+        MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'bxx; // Indefinido
 
         case (opcode)
             // Tipo-R (sub, or, srl)
             7'b0110011: begin
-                RegWrite = 1'b1; ALUOp = 2'b10; // ALUOp '10' = Usar Functs
+                RegWrite = 1'b1; ALUSrc = 1'b0; MemToReg = 1'b0; MemRead = 1'b0;
+                MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'b10; // Usar Functs
             end
             // Tipo-I Load (lh)
             7'b0000011: begin
-                RegWrite = 1'b1; ALUSrc = 1'b1; MemToReg = 1'b1; MemRead = 1'b1; ALUOp = 2'b00; // ALUOp '00' = SOMA
+                RegWrite = 1'b1; ALUSrc = 1'b1; MemToReg = 1'b1; MemRead = 1'b1;
+                MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'b00; // SOMA
             end
             // Tipo-I Imediato (andi)
             7'b0010011: begin
-                RegWrite = 1'b1; ALUSrc = 1'b1; ALUOp = 2'b11; // ALUOp '11' = AND
+                RegWrite = 1'b1; ALUSrc = 1'b1; MemToReg = 1'b0; MemRead = 1'b0;
+                MemWrite = 1'b0; Branch = 1'b0; ALUOp    = 2'b11; // AND
             end
             // Tipo-S Store (sh)
             7'b0100011: begin
-                ALUSrc = 1'b1; MemWrite = 1'b1; ALUOp = 2'b00; // ALUOp '00' = SOMA
+                RegWrite = 1'b0; ALUSrc = 1'b1; MemToReg = 1'bx; // Don't Care
+                MemRead  = 1'b0; MemWrite = 1'b1; Branch = 1'b0; ALUOp    = 2'b00; // SOMA
             end
             // Tipo-B Branch (beq)
             7'b1100011: begin
-                Branch = 1'b1; ALUOp = 2'b01; // ALUOp '01' = SUB
+                RegWrite = 1'b0; ALUSrc = 1'b0; MemToReg = 1'bx; // Don't Care
+                MemRead  = 1'b0; MemWrite = 1'b0; Branch = 1'b1; ALUOp    = 2'b01; // SUB
             end
         endcase
     end
@@ -60,17 +65,14 @@ module Unidade_Controle_ULA (
 
     always @(*) begin
         case (ALUOp)
-            2'b00: alu_control_out = ALU_ADD; // Comando direto para SOMA
-            2'b01: alu_control_out = ALU_SUB; // Comando direto para SUB
-            2'b11: alu_control_out = ALU_AND; // Comando direto para AND
+            2'b00: alu_control_out = ALU_ADD; // Comando para SOMA
+            2'b01: alu_control_out = ALU_SUB; // Comando para SUB
+            2'b11: alu_control_out = ALU_AND; // Comando para AND
             2'b10: begin // Comando para decodificar Tipo-R
                 case (funct3)
-                    3'b000: begin // ADD ou SUB
-                        if (funct7 == 7'b0100000) alu_control_out = ALU_SUB; // sub
-                        else alu_control_out = ALU_ADD; // add
-                    end
-                    3'b110: alu_control_out = ALU_OR;   // or
-                    3'b101: alu_control_out = ALU_SRL;  // srl
+                    3'b000: if (funct7 == 7'b0100000) alu_control_out = ALU_SUB; else alu_control_out = ALU_ADD;
+                    3'b110: alu_control_out = ALU_OR;
+                    3'b101: if (funct7 == 7'b0000000) alu_control_out = ALU_SRL; else alu_control_out = 4'hX;
                     default: alu_control_out = 4'hX;
                 endcase
             end
