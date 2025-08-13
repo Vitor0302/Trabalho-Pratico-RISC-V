@@ -1,79 +1,66 @@
-/*
- Testbench completo para o Processador RISC-V Monociclo do Grupo 12.
- Monitora todos os 32 registradores e posições relevantes da memória.
-*/
 `timescale 1ns/1ps
 
 module testbench;
 
-    // Sinais de controle
     reg clock;
     reg reset;
+    integer i;
 
-    // Instância do processador
+    // Instancia o nosso processador
     processador DUT (
         .clock(clock),
         .reset(reset)
     );
 
-    // Geração do clock (período de 20ns)
+    // Geração do Clock
     initial begin
         clock = 0;
-        forever #10 clock = ~clock;
+        forever #10 clock = ~clock; // Período de 20ns
     end
 
-    // Controle da simulação
+    // Controle da Simulação e Inicialização
     initial begin
-        // Configuração do arquivo de onda
         $dumpfile("waveform.vcd");
-        $dumpvars(0, testbench);
+        $dumpvars(0, DUT);
 
-        // 1. Inicialização com reset
-        reset = 1;
-        #15 reset = 0;
-        
-        // 2. Mensagem inicial
         $display("\nIniciando simulacao do processador RISC-V - Grupo 12");
         $display("Instrucoes suportadas: lh, sh, sub, or, andi, srl, beq\n");
 
-        // 3. Monitoramento durante a execução
-        $monitor("Time=%0t ns | PC=0x%h | Instr=0x%h", 
-                 $time, 
-                 DUT.w_pc_current, 
-                 DUT.w_instruction);
+        // 1. Aplica o reset
+        reset = 1;
+        #15;
+        reset = 0;
 
-        // 4. Finalização e relatório
-        #300; // Executa por 300ns
-        print_final_state();
-        $finish;
-    end
+        // 2. ***** A CORREÇÃO CRÍTICA ESTÁ AQUI *****
+        // Inicializa a Memória de Dados diretamente a partir do Testbench
+        $display("--- INICIALIZANDO MEMORIA DE DADOS ---");
+        DUT.u_dmem.data_memory[0] = 32'd10; // Força o valor 10 no endereço 0
+        DUT.u_dmem.data_memory[1] = 32'd3;  // Força o valor 3 no endereço 4 (índice de palavra 1)
+        
+        // 3. Monitora a execução do programa
+        $monitor("Time=%0t ns | PC=0x%h | Instr=0x%h", $time, DUT.w_pc_current, DUT.w_instruction);
 
-    // Tarefa para imprimir o estado final
-    task print_final_state;
-        begin
-            $display("\n================ ESTADO FINAL ================");
-            
-            // Registradores
-            $display("\n--- Registradores ---");
-            for (integer i = 0; i < 32; i = i+4) begin
-                $display("x%02d: 0x%h \t x%02d: 0x%h \t x%02d: 0x%h \t x%02d: 0x%h", 
-                         i, DUT.u_regfile.reg_memory[i],
-                         i+1, DUT.u_regfile.reg_memory[i+1],
-                         i+2, DUT.u_regfile.reg_memory[i+2],
-                         i+3, DUT.u_regfile.reg_memory[i+3]);
-            end
+        // 4. Roda a simulação por tempo suficiente e exibe o estado final
+        #200;
 
-            // Memória de dados (primeiras 10 palavras)
-            $display("\n--- Memoria de Dados (enderecos 0-36) ---");
-            for (integer j = 0; j < 10; j++) begin
-                $display("Mem[%0d]: 0x%h", j*4, DUT.u_dmem.data_memory[j]);
-            end
-
-            // Estado especial
-            $display("\n--- Flags ---");
-            $display("Zero Flag: %b", DUT.u_alu.zero_flag);
-            $display("==========================================\n");
+        $display("\n================ ESTADO FINAL ================");
+        $display("\n--- Registradores ---");
+        for (i=0; i<32; i=i+4) begin
+            $display("x%02d: 0x%h    x%02d: 0x%h    x%02d: 0x%h    x%02d: 0x%h",
+                i, DUT.u_regfile.reg_memory[i], i+1, DUT.u_regfile.reg_memory[i+1],
+                i+2, DUT.u_regfile.reg_memory[i+2], i+3, DUT.u_regfile.reg_memory[i+3]);
         end
-    endtask
+
+        $display("\n--- Memoria de Dados (enderecos 0-36) ---");
+        for (i=0; i<10; i=i+1) begin
+            $display("Mem[%d]: 0x%h", i*4, DUT.u_dmem.data_memory[i]);
+        end
+
+        $display("\n--- Flags ---");
+        $display("Zero Flag: %b", DUT.w_alu_zero_flag);
+        $display("==========================================");
+
+        $finish; // Encerra a simulação
+    end
 
 endmodule

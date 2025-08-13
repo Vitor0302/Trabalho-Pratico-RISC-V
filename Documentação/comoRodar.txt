@@ -1,0 +1,5 @@
+cd Módulos  #entra na pasta de módulos
+iverilog -o meu_processador.out testbench.v processador.v unidade_controle.v ula.v banco_registradores.v memoria_dados.v memoria_instrucao.v 
+iverilog -o meu_processador.out *.v
+vvp meu_processador.out
+gtkwave

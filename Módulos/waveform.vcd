@@ -1,5 +1,5 @@
 $date
-	Mon Aug 11 15:35:24 2025
+	Wed Aug 13 19:59:28 2025
 $end
 $version
 	Icarus Verilog
@@ -8,8 +8,6 @@ $timescale
 	1ps
 $end
 $scope module testbench $end
-$var reg 1 ! clock $end
-$var reg 1 " reset $end
 $scope module DUT $end
 $var wire 1 ! clock $end
 $var wire 1 " reset $end
@@ -65,14 +63,15 @@ $var wire 32 L read_data [31:0] $end
 $var wire 32 M write_data [31:0] $end
 $var wire 1 0 MemWrite $end
 $var wire 1 2 MemRead $end
+$var integer 32 N i [31:0] $end
 $upscope $end
 $scope module u_imem $end
-$var wire 32 N address [31:0] $end
-$var wire 32 O instruction [31:0] $end
+$var wire 32 O address [31:0] $end
+$var wire 32 P instruction [31:0] $end
 $upscope $end
 $scope module u_main_control $end
-$var wire 7 P opcode [6:0] $end
-$var reg 2 Q ALUOp [1:0] $end
+$var wire 7 Q opcode [6:0] $end
+$var reg 2 R ALUOp [1:0] $end
 $var reg 1 5 ALUSrc $end
 $var reg 1 4 Branch $end
 $var reg 1 2 MemRead $end
@@ -82,23 +81,15 @@ $var reg 1 / RegWrite $end
 $upscope $end
 $scope module u_regfile $end
 $var wire 1 ! clock $end
-$var wire 5 R read_reg_num1 [4:0] $end
-$var wire 5 S read_reg_num2 [4:0] $end
+$var wire 5 S read_reg_num1 [4:0] $end
+$var wire 5 T read_reg_num2 [4:0] $end
 $var wire 1 / regwrite $end
 $var wire 1 " reset $end
-$var wire 32 T write_data [31:0] $end
-$var wire 5 U write_reg [4:0] $end
-$var wire 32 V read_data2 [31:0] $end
-$var wire 32 W read_data1 [31:0] $end
-$var integer 32 X i [31:0] $end
-$upscope $end
-$upscope $end
-$scope task print_final_state $end
-$scope begin $ivl_for_loop0 $end
+$var wire 32 U write_data [31:0] $end
+$var wire 5 V write_reg [4:0] $end
+$var wire 32 W read_data2 [31:0] $end
+$var wire 32 X read_data1 [31:0] $end
 $var integer 32 Y i [31:0] $end
-$upscope $end
-$scope begin $ivl_for_loop1 $end
-$var integer 32 Z j [31:0] $end
 $upscope $end
 $upscope $end
 $upscope $end
@@ -113,21 +104,20 @@ b10 E
 $end
 #0
 $dumpvars
-bx Z
-bx Y
-b100000 X
+b100000 Y
+b0 X
 b0 W
-b0 V
-b1010 U
-bx T
+b1010 V
+b0 U
+b0 T
 b0 S
 b0 R
-b0 Q
-b11 P
-b1010100000011 O
-b0 N
+b11 Q
+b1010100000011 P
+b0 O
+b10000000000 N
 b0 M
-bx L
+b0 L
 b0 K
 b10 J
 b0 D
@@ -157,24 +147,32 @@ b0 -
 1,
 b0 +
 b1010100000011 *
-bx )
+b0 )
 b0 (
 b100 '
 b100 &
 b0 %
 b0 $
-bx #
+b0 #
 1"
 0!
 $end
 #10000
-b100000 X
+b100000 Y
 1!
 #15000
+b1010 #
+b1010 U
+b1010 )
+b1010 L
 0"
 #20000
 0!
 #30000
+b11 #
+b11 U
+b11 )
+b11 L
 0,
 b100 -
 b100 A
@@ -184,42 +182,42 @@ b100 >
 b100 +
 b100 $
 b100 M
-b100 V
+b100 W
 b100 7
-b100 S
+b100 T
 b1011 9
-b1011 U
+b1011 V
 b1000 '
 b10000000001010110000011 *
-b10000000001010110000011 O
+b10000000001010110000011 P
 b1000 &
 b1000 (
 b100 =
-b100 N
+b100 O
 1!
 #40000
 0!
 #50000
 b10000001011 +
-bx -
-bx A
-bx K
-bx #
-bx T
-bx .
-bx >
-bx $
-bx M
-bx V
-bx %
-bx @
-bx W
+b111 -
+b111 A
+b111 K
+b111 #
+b111 U
+b11 .
+b11 >
+b11 $
+b11 M
+b11 W
+b1010 %
+b1010 @
+b1010 X
 b100 3
 b100 ?
 b100 J
 b10 6
 b10 D
-b10 Q
+b10 R
 02
 01
 05
@@ -227,27 +225,34 @@ b10 Q
 b100000 ;
 b100000 C
 b1011 7
-b1011 S
+b1011 T
 b1010 8
-b1010 R
+b1010 S
 b0 <
 b0 B
 b1100 9
-b1100 U
+b1100 V
 b110011 :
-b110011 P
+b110011 Q
 b1100 '
 b1000000101101010000011000110011 *
-b1000000101101010000011000110011 O
+b1000000101101010000011000110011 P
 b1100 &
 b10000010011 (
 b1000 =
-b1000 N
+b1000 O
 1!
 #60000
 0!
 #70000
+b0 )
+b0 L
+b1011 #
+b1011 U
 b1011 +
+b1011 -
+b1011 A
+b1011 K
 b1 3
 b1 ?
 b1 J
@@ -256,108 +261,112 @@ b0 C
 b110 <
 b110 B
 b1101 9
-b1101 U
+b1101 V
 b10000 '
 b101101010110011010110011 *
-b101101010110011010110011 O
+b101101010110011010110011 P
 b10000 &
 b10111 (
 b1100 =
-b1100 N
+b1100 O
 1!
 #80000
 0!
 #90000
-b0x000 #
-b0x000 T
+b1000 #
+b1000 U
 b1000 +
-b0x000 -
-b0x000 A
-b0x000 K
+b1000 -
+b1000 A
+b1000 K
 b1000 .
 b1000 >
 b1000 $
 b1000 M
-b1000 V
+b1000 W
 b0 3
 b0 ?
 b0 J
 15
 b11 6
 b11 D
-b11 Q
+b11 R
 1/
 b1000 7
-b1000 S
+b1000 T
 b111 <
 b111 B
 b1110 9
-b1110 U
+b1110 V
 b10011 :
-b10011 P
+b10011 Q
 b10100 '
 b100001010111011100010011 *
-b100001010111011100010011 O
+b100001010111011100010011 P
 b10100 &
 b11000 (
 b10000 =
-b10000 N
+b10000 O
 1!
 #100000
 0!
 #110000
-b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx #
-b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx T
+b11 )
+b11 L
+b101 #
+b101 U
 b1 +
-b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -
-b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx A
-b0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx K
+b101 -
+b101 A
+b101 K
 b1 .
 b1 >
 b1 $
 b1 M
-b1 V
+b1 W
 b101 3
 b101 ?
 b101 J
 b10 6
 b10 D
-b10 Q
+b10 R
 05
 1/
 b1 7
-b1 S
+b1 T
 b101 <
 b101 B
 b1111 9
-b1111 U
+b1111 V
 b110011 :
-b110011 P
+b110011 Q
 b11000 '
 b101010101011110110011 *
-b101010101011110110011 O
+b101010101011110110011 P
 b11000 &
 b10101 (
 b10100 =
-b10100 N
+b10100 O
 1!
 #120000
 0!
 #130000
-bx .
-bx >
-bx -
-bx A
-bx K
+b0 )
+b0 L
+b1010 .
+b1010 >
+b11111111111111111111111111111110 -
+b11111111111111111111111111111110 A
+b11111111111111111111111111111110 K
 b100 +
-bx #
-bx T
-bx $
-bx M
-bx V
-b0x000 %
-b0x000 @
-b0x000 W
+bx0 #
+bx0 U
+b1010 $
+b1010 M
+b1010 W
+b1000 %
+b1000 @
+b1000 X
 b100 3
 b100 ?
 b100 J
@@ -365,37 +374,42 @@ b100 J
 x1
 b1 6
 b1 D
-b1 Q
+b1 R
 0/
 b1010 7
-b1010 S
+b1010 T
 b1110 8
-b1110 R
+b1110 S
 b0 <
 b0 B
 b100 9
-b100 U
+b100 V
 b1100011 :
-b1100011 P
+b1100011 Q
 b11100 '
 b101001110000001001100011 *
-b101001110000001001100011 O
+b101001110000001001100011 P
 b11100 &
 b11100 (
 b11000 =
-b11000 N
+b11000 O
 1!
 #140000
 0!
 #150000
+b0x000 #
+b0x000 U
 b1000 -
 b1000 A
 b1000 K
 b1000 .
 b1000 >
+b111 $
+b111 M
+b111 W
 b0 %
 b0 @
-b0 W
+b0 X
 b10 3
 b10 ?
 b10 J
@@ -404,26 +418,26 @@ b1000 +
 15
 b0 6
 b0 D
-b0 Q
+b0 R
 04
 x1
 b1100 7
-b1100 S
+b1100 T
 b0 8
-b0 R
+b0 S
 b10 <
 b10 B
 b1000 9
-b1000 U
+b1000 V
 b100011 :
-b100011 P
+b100011 Q
 b100000 '
 b110000000010010000100011 *
-b110000000010010000100011 O
+b110000000010010000100011 P
 b100000 &
 b100100 (
 b11100 =
-b11100 N
+b11100 O
 1!
 #160000
 0!
@@ -436,7 +450,7 @@ b0 .
 b0 >
 b0 $
 b0 M
-b0 V
+b0 W
 b100 3
 b100 ?
 b100 J
@@ -444,25 +458,29 @@ b0 +
 14
 b1 6
 b1 D
-b1 Q
+b1 R
 00
 x1
 05
 b0 7
-b0 S
+b0 T
 b0 <
 b0 B
 b0 9
-b0 U
+b0 V
 b1100011 :
-b1100011 P
+b1100011 Q
+b0x0x0 #
+b0x0x0 U
 b100000 '
 b1100011 *
-b1100011 O
+b1100011 P
+b1010 )
+b1010 L
 b100100 &
 b100000 (
 b100000 =
-b100000 N
+b100000 O
 1!
 #180000
 0!
@@ -472,26 +490,4 @@ b100000 N
 0!
 #210000
 1!
-#220000
-0!
-#230000
-1!
-#240000
-0!
-#250000
-1!
-#260000
-0!
-#270000
-1!
-#280000
-0!
-#290000
-1!
-#300000
-0!
-#310000
-1!
-#315000
-b1010 Z
-b100000 Y
+#215000
