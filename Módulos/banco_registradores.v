@@ -1,7 +1,9 @@
-/*
- Módulo do Banco de Registradores (Register File) - VERSÃO FINAL CORRIGIDA
- Com lógica de reset assíncrono padrão.
+/* 
+Módulo de Banco de Registradores
+Este módulo implementa um banco de registradores de 32 bits com 32 registradores.
+Ele permite leitura e escrita síncrona, além de reset para inicialização dos registradores.
 */
+
 module REG_FILE(
     input  [4:0]  read_reg_num1,
     input  [4:0]  read_reg_num2,
@@ -17,16 +19,16 @@ module REG_FILE(
     reg [31:0] reg_memory [0:31];
     integer i;
 
-    // Lógica de Leitura Combinacional (continua correta)
+    // Lógica de Leitura Combinacional
     assign read_data1 = (read_reg_num1 == 5'b0) ? 32'b0 : reg_memory[read_reg_num1];
     assign read_data2 = (read_reg_num2 == 5'b0) ? 32'b0 : reg_memory[read_reg_num2];
 
-    // --- CORREÇÃO: Lógica de escrita e reset UNIFICADA E SÍNCRONA ---
+    // Lógica de escrita e reset UNIFICADA E SÍNCRONA
     always @(posedge clock or posedge reset)
     begin
         // Se o reset for ativado (reset == 1), inicializa os registradores
         if (reset) begin
-            // Usando um loop para inicializar, é mais limpo
+            // Usando um loop para inicializar
             for (i=0; i<32; i=i+1) begin
                 reg_memory[i] <= i;
             end

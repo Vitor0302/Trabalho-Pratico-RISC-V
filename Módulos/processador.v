@@ -1,7 +1,8 @@
 /*
- Módulo Top-Level do Processador RISC-V Monociclo.
- Grupo 12: lh, sh, sub, or, andi, srl, beq
- CORRIGIDO E REVISADO
+Módulo Top-Level do Processador RISC-V Monociclo.
+Grupo 12: lh, sh, sub, or, andi, srl, beq
+Este módulo integra todos os componentes do processador, incluindo a memória de instrução, banco de registradores, 
+memória de dados, ULA e unidades de controle.    
 */
 module processador(
     input clock,
@@ -18,10 +19,8 @@ module processador(
     wire [3:0]  w_Final_ALU_Control;
 
     // -- Barramentos de Dados
-    // ****** CORREÇÃO 1: w_pc_current agora é um REGISTRADOR ******
     reg  [31:0] w_pc_current;
     wire [31:0] w_pc_next, w_pc_plus_4, w_pc_branch_target;
-    // ***************************************************************
     
     wire [31:0] w_instruction;
     wire [31:0] w_read_data_1, w_read_data_2;
@@ -90,7 +89,7 @@ module processador(
     // MUX para a segunda entrada da ULA
     assign w_alu_input_2 = w_ALUSrc ? w_immediate_extended : w_read_data_2;
 
-    // ****** CORREÇÃO 2: Nomes das portas da ULA corrigidos ******
+    // Sinal de controle para a ULA
     ULA u_alu (
         .in1(w_read_data_1),
         .in2(w_alu_input_2),
@@ -98,8 +97,7 @@ module processador(
         .ula_result(w_alu_result),
         .zero_flag(w_alu_zero_flag)
     );
-    // **********************************************************
-    
+  
     // --- Estágio MEM: Acesso à Memória ---
 
     // Instância da Memória de Dados

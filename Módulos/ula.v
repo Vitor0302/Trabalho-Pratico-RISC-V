@@ -1,3 +1,10 @@
+/*
+Módulo ULA (Unidade Lógica Aritmética)
+Este módulo implementa a ULA do processador, capaz de realizar operações lógicas e aritméticas.
+As operações são selecionadas por um sinal de controle de 4 bits.
+As operações suportadas incluem AND, OR, ADD, SUB, SRL, SLL, MULTIPLY, XOR e SLT.
+*/
+
 module ULA (
     input  [31:0] in1, in2, 
     input  [3:0]  ula_control,
@@ -9,15 +16,15 @@ module ULA (
     begin
         // Bloco case para selecionar a operação
         case(ula_control)
-            4'b0000: ula_result = in1 & in2;  // AND
-            4'b0001: ula_result = in1 | in2;  // OR
-            4'b0010: ula_result = in1 + in2;  // ADD
-            4'b0100: ula_result = in1 - in2;  // SUB
-            4'b0101: ula_result = in1 >> in2;  // SRL
-            4'b0011: ula_result = in1 << in2;  // SLL (extra)
-            4'b0110: ula_result = in1 * in2;  // Multiply (extra)
-            4'b0111: ula_result = in1 ^ in2;  // XOR (extra)
-            4'b1000: begin                   // SLT (extra)
+            4'b0000: ula_result = in1 & in2;    // AND
+            4'b0001: ula_result = in1 | in2;    // OR
+            4'b0010: ula_result = in1 + in2;    // ADD
+            4'b0100: ula_result = in1 - in2;    // SUB
+            4'b0101: ula_result = in1 >> in2;   // SRL
+            4'b0011: ula_result = in1 << in2;   // SLL (extra)
+            4'b0110: ula_result = in1 * in2;    // Multiply (extra)
+            4'b0111: ula_result = in1 ^ in2;    // XOR (extra)
+            4'b1000: begin                      // SLT (extra)
                 if(in1 < in2)
                     ula_result = 32'd1;
                 else

@@ -1,7 +1,7 @@
 /*
- Módulo da Memória de Dados.
- Armazena os dados do programa.
- Realiza leituras de forma combinacional e escritas de forma síncrona.
+Módulo da Memória de Dados.
+Armazena os dados do programa.
+Realiza leituras de forma combinacional e escritas de forma síncrona.
 */
 module Memoria_Dados (
     input         clock,

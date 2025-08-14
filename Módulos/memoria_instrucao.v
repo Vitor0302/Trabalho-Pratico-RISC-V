@@ -1,3 +1,9 @@
+/*
+Módulo de Memória de Instrução
+Este módulo implementa uma memória de instrução de 256 posições, onde cada posição armazena uma instrução de 32 bits.
+Ele permite leitura de instruções com base no endereço fornecido.
+*/
+
 module Memoria_Instrucao (
     input  [31:0] address,
     output [31:0] instruction
@@ -5,12 +11,10 @@ module Memoria_Instrucao (
 
     reg [31:0] rom_memory [0:255];
 
-    // -- DEBUG: Carregando o programa diretamente na memória --
+    // Carregando o programa diretamente na memória 
     initial begin
-        // Comentamos a linha que lê o arquivo externo
-        // $readmemh("programa.hex", rom_memory); 
 
-        // E colocamos os valores na mão
+        // Programa de teste para validar as instruções do Grupo 12.
         rom_memory[0] = 32'h00001503; // 0x00: lh x10, 0(x0)
         rom_memory[1] = 32'h00401583; // 0x04: lh x11, 4(x0)
         rom_memory[2] = 32'h40b50633; // 0x08: sub x12, x10, x11
