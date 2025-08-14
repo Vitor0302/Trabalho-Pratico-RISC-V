@@ -19,22 +19,13 @@ Repositório do Trabalho Prático 1 da disciplina **CSI509 – Organização e A
 ## 📁 Estrutura do Repositório
 
 ```plaintext
-├── src/                      # Códigos-fonte em Verilog
+├── Módulos/                      # Códigos-fonte em Verilog
 │   ├── alu.v
 │   ├── datapath.v
 │   ├── control.v
 │   └── ...
-├── quartus/                  # Projeto para síntese no Quartus (Mercúrio IV)
-│   └── [arquivos .qpf, .qsf...]
-├── doc/                      # Documentação em LaTeX (formato SBC)
+├── Documentação/                      # Documentação em LaTeX (formato SBC)
 │   └── relatorio.pdf
-├── testbench/                # Testbench para simulação
-│   └── tb_processor.v
-├── dados/
-│   ├── codigo.asm            # Código de teste em assembly RISC-V
-│   ├── codigo_binario.txt    # Instruções em binário (ROM)
-│   ├── regs_iniciais.txt     # Estado inicial dos registradores
-│   └── memoria_dados.txt     # Estado inicial da memória de dados
 └── README.md
 ```
 ---
@@ -58,9 +49,10 @@ O testbench simula o funcionamento do processador, exibindo no terminal o estado
 A documentação está em formato SBC (LaTeX), contendo:
 
 - Introdução
-- Desenvolvimento do caminho de dados
-- Resultados da simulação e execução na FPGA
-- Considerações finais
+- Objetivos
+- Metodologias
+- Análise de Resultados
+- Conclusão
 - Referências bibliográficas
 
 ---
